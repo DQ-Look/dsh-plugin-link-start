@@ -1,0 +1,27 @@
+# .gitattributes — dsh-link-start
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# The repository stores every text file with LF endings, and `lib/client.js` is a
+# build artifact that must be BYTE-IDENTICAL to a fresh `node build-client.mjs`
+# run over `src/client.js`. `verify/verify-client.mjs` asserts exactly that.
+#
+# Git for Windows defaults to `core.autocrlf=true`, which rewrites text files to
+# CRLF on checkout. That silently breaks the pair: `src/client.js` comes back with
+# CRLF while the committed artifact is LF, so a rebuild is a few bytes longer than
+# what is checked in, and `npm test` fails on a fresh clone with
+# "lib/client.js is UP TO DATE ... byte-identical" — on a machine whose OWN
+# checkout looks fine, because it was never re-checked-out through that filter.
+# Measured: a fresh clone had `w/crlf` for src/client.js and `w/mixed` for
+# lib/client.js, and the gate went 9/9 -> 8/9 with 2 assertions failed.
+#
+# `eol=lf` pins the worktree to LF on every platform regardless of the user's
+# `core.autocrlf`, so the checked-out bytes match the committed blob and a rebuild
+# is byte-identical everywhere. It also matters to `tools/install.ps1` /
+# `uninstall.ps1`, which edit `cordis.patch.yml` as BYTES and assert byte
+# accounting before writing — a machine-dependent EOL rewrite would corrupt that
+# contract.
+#
+# Do not "fix" this by marking lib/client.js `-text`: that would leave it LF while
+# src/client.js was still converted, which is the very mismatch this prevents.
+* text=auto eol=lf

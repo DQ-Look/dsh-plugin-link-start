@@ -1,0 +1,23 @@
+# Bundle patch for dsh-link-start.
+#
+# This is a top-level YAML array of loader patch entries — the format `dsh`
+# composes when it boots a profile: each bundle in `dsh.profile.bundles`
+# contributes its patch list, applied in bundle order over the profile root
+# (after dsh-base / dsh-web-app, before the profile's own cordis.patch.yml).
+#
+# The row's `id` IS the settings namespace. `@deepseek-ai/dsh-settings` derives
+# the editable form from this entry's `Config` schema and serves it under this
+# exact id, and the browser half reaches that same id through the client
+# `configForms` service. Nothing in DSH checks that the two agree, so
+# `verify/verify-namespace.mjs` asserts it, and `src/client.js` spells the same
+# string in SETTINGS_NAMESPACE.
+#
+# Renaming this id moves the settings namespace and silently orphans the
+# browser card. Do not rename it.
+#
+# The browser half joins the client module graph automatically: this package's
+# manifest declares `dsh.client` (platform: web) and exports "./client", so
+# dsh-client-modules serves that bundle into the browser.
+- insert:
+    - id: link-start
+      name: dsh-link-start

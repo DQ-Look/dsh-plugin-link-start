@@ -1,0 +1,71 @@
+{
+  "name": "dsh-link-start",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sword Art Online \"LINK START\" boot animation for DeepSeek Harness: a procedural full-window start sequence drawn from a pure timeline — no video, no assets, no network — that dissolves into the app.",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "boot-animation",
+    "link-start",
+    "sao"
+  ],
+  "license": "MIT",
+  "author": "DQ-Look",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "src",
+    "verify/*.mjs",
+    "verify/fixtures",
+    "tools",
+    "cordis.patch.yml",
+    "package.json",
+    "README.md",
+    "MANUAL.md",
+    "AGENTS.md",
+    "INTERFACES.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "*"
+  },
+  "scripts": {
+    "build": "node build-client.mjs",
+    "test": "node verify/verify-all.mjs",
+    "storyboard": "node tools/storyboard.mjs",
+    "preview": "node tools/preview.mjs"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "displayName": {
+      "en": "LINK START boot animation",
+      "zh": "LINK START 启动动画"
+    },
+    "description": {
+      "en": "Sword Art Online \"LINK START\" boot animation: a procedural full-window start sequence, then a dissolve into the app.",
+      "zh": "刀剑神域「LINK START」启动动画：全屏程序化开场序列，随后溶解进入界面。"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}

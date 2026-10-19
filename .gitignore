@@ -1,0 +1,77 @@
+# .gitignore — dsh-link-start
+#
+# The first commit is SOURCE ONLY: every tracked path must be something a
+# reader can build from, not something an install or a script produces.
+# Everything excluded below is either a dependency install, a throwaway
+# extraction, or regenerable output.
+#
+# READ THE LAST SECTION BEFORE ADDING A PATTERN. `lib/client.js` is a
+# committed build artifact, and the obvious globs would drop it.
+
+# ---------------------------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------------------------
+# npm/pnpm install output. In this checkout it holds only an @deepseek-ai
+# link (the schemastery/cosmokit peer), ~139 KB. Never source, never committed;
+# a clone recreates it from package.json.
+node_modules/
+
+# No lockfile is committed. The single peer dependency is declared as `*`
+# (INTERFACES.md §3) because DSH resolves it against the runtime's own copy, so a
+# lockfile would pin nothing meaningful. Install is by directory junction, not by
+# a package manager; `npm install` exists only to satisfy that one peer for the
+# offline suites.
+package-lock.json
+
+# ---------------------------------------------------------------------------
+# Local scratch: a third-party reference extraction
+# ---------------------------------------------------------------------------
+# ~23 MB of unpacked DSH reference source, kept only as a *shape* reference for
+# docs and tooling (see AGENTS.md, "What it is"). It is a third-party
+# extraction, not this package's source, and nothing here builds or verifies
+# against it at runtime.
+.scratch/
+
+# ---------------------------------------------------------------------------
+# Generated storyboard
+# ---------------------------------------------------------------------------
+# PNGs (one per phase), index.html and report.json — all written by
+# `node tools/storyboard.mjs`, which walks `src/scene.js`'s frozen phase table
+# and rasterises `frame(t)` through `tools/raster.mjs`. Fully regenerable, so a
+# committed copy would be stale the moment the timeline changes. To review the
+# animation, run the tool; do not commit its output.
+storyboard/
+
+# The verifier's scratch area: RED-BASELINE logs, tamper-test copies and other
+# throwaway scaffolding produced while proving the gate is non-vacuous. Not
+# source, not referenced by any suite.
+verify/scratch/
+
+# ---------------------------------------------------------------------------
+# OS / editor cruft
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# ---------------------------------------------------------------------------
+# lib/client.js is deliberately NOT ignored — do not add a pattern that catches it
+# ---------------------------------------------------------------------------
+# `lib/client.js` is a COMMITTED BUILD ARTIFACT (AGENTS.md; INTERFACES.md §3).
+# The package manifest exports it as this plugin's browser bundle
+# (`exports["./client"] -> ./lib/client.js`), and DSH's client-module graph
+# serves that exact file. A clone without it has no settings card until someone
+# runs `node build-client.mjs` — and nothing in DSH would say why.
+#
+# It is generated from `src/client.js` by `node build-client.mjs`: edit the
+# source, rebuild, and commit BOTH. Never hand-edit the artifact.
+#
+# So: no `lib/`, no `lib/*.js`, no `*.js`, no `*.min.js`. A pattern like that
+# would silently drop the bundle from the first public commit.

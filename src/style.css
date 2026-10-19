@@ -1,0 +1,206 @@
+/* dsh-link-start — overlay chrome.
+ *
+ * Injected into the document ahead of the shell. Every selector is namespaced
+ * with the dslls- prefix so nothing here can reach the host's own UI, and the whole
+ * file is expressed in plain CSS with no nesting, no @import and no external font,
+ * because it must work before anything else has loaded.
+ *
+ * The root owns the entire viewport and is opaque. It is never hidden while
+ * visible and never partially transparent until the dissolve, which is why the
+ * app underneath needs no cooperation: the app is simply not visible through it.
+ *
+ * NOTE ON ATTRIBUTE SELECTORS: any attribute selector whose value starts with a
+ * digit MUST quote it. An unquoted value must be a CSS identifier, and one
+ * starting with a digit is not, so the browser drops the ENTIRE rule without a
+ * word and the switch it was meant to drive silently does nothing.
+ * verify/verify-css.mjs asserts this.
+ *
+ * NO BACKTICKS ANYWHERE IN THIS FILE. This stylesheet is normally injected as a
+ * style row and would be harmless, but src/boot-screen.js carries a fallback copy
+ * of these rules as a JavaScript string, and inlining a backtick into a template
+ * literal ends the string early so the build silently keeps the previous artifact.
+ * Keeping the whole file backtick-free means it can always be inlined safely.
+ */
+
+.dslls-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #000000;
+  color: #dbeaf7;
+  font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* The WHOLE overlay fades as one unit. The duration is set inline at dissolve
+   * time from the resolved setting; this is only the fallback. */
+  opacity: 1;
+  transition: opacity 1000ms ease;
+}
+
+/* Leaving: fully transparent and inert. The node is removed once the fade ends,
+ * so nothing opaque can ever be left over the app. */
+.dslls-root[data-state="leaving"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The canvas covers the viewport. display:block avoids the inline-element
+ * baseline gap that would otherwise show a sliver of background at the bottom. */
+.dslls-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Bottom HUD: title, progress bar, hint, and the sound control. */
+.dslls-hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 26px 30px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  align-items: center;
+  pointer-events: none;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+}
+
+.dslls-title {
+  font-size: 12px;
+  letter-spacing: 0.34em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #9fc4e6;
+  opacity: 0.92;
+}
+
+.dslls-bar {
+  position: relative;
+  width: min(340px, 54vw);
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(159, 196, 230, 0.22);
+  overflow: hidden;
+}
+
+.dslls-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #4f9dd9, #8fd8ff);
+  box-shadow: 0 0 12px rgba(143, 216, 255, 0.75);
+  transition: width 450ms ease;
+}
+
+.dslls-hint {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: #8fb3d4;
+  opacity: 0;
+  transition: opacity 500ms ease;
+  text-align: center;
+}
+
+/* The hint appears once the overlay is ready to be left. */
+.dslls-root[data-state="ready"] .dslls-hint {
+  opacity: 0.95;
+}
+
+/* Attention (slow boot, or a kernel failure): amber, and no longer letter-spaced
+ * because the text is a sentence rather than a label. */
+.dslls-root[data-attention="1"] .dslls-hint {
+  opacity: 1;
+  color: #ffd79a;
+  letter-spacing: 0.04em;
+}
+
+.dslls-root[data-attention="1"] .dslls-fill {
+  background: linear-gradient(90deg, #d99a4f, #ffd79a);
+}
+
+/* The hint switch. display:none rather than opacity:0, because the state rules
+ * above set the opacity this class would otherwise have to fight. The value is
+ * QUOTED: an unquoted [data-hint=0] is an invalid selector and the rule vanishes. */
+.dslls-root[data-hint="0"] .dslls-hint {
+  display: none;
+}
+
+/* Diagnostics readout (?dshlinkdiag=1): monospace, wrapped, and allowed to be
+ * long — it exists to be screenshotted from a stuck screen. */
+.dslls-root[data-diag="1"] .dslls-hint {
+  display: block;
+  opacity: 1;
+  color: #9fe8b0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0;
+  line-height: 1.6;
+  word-break: break-word;
+  max-width: min(900px, 92vw);
+}
+
+/* Sound control, deliberately separate from the enter gesture: a browser grants
+ * audio only to a user gesture, and the entering gesture also dismisses the
+ * screen, so tying sound to it would mean the sound is only ever heard on the way
+ * out. This button is the gesture that turns sound on while the screen stays.
+ *
+ * With sound:false this element is never created at all, because a control that
+ * only ever fails is worse than no control. */
+.dslls-sound {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  z-index: 2;
+  cursor: pointer;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 999px;
+  color: #cfe4f6;
+  background: rgba(12, 26, 42, 0.62);
+  border: 1px solid rgba(159, 196, 230, 0.38);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  transition: opacity 400ms ease, background 200ms ease;
+}
+
+.dslls-sound:hover {
+  background: rgba(20, 44, 70, 0.78);
+}
+
+.dslls-sound:focus-visible {
+  outline: 2px solid #5ad7ff;
+  outline-offset: 2px;
+}
+
+.dslls-root[data-state="leaving"] .dslls-sound {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Callers who ask for less motion get less motion: the scanline-free, glitch-free
+ * calm sequence still runs, and the swap itself is instant. */
+@media (prefers-reduced-motion: reduce) {
+  .dslls-root {
+    transition-duration: 400ms;
+  }
+  .dslls-fill {
+    transition: none;
+  }
+}
