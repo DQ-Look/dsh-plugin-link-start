@@ -4,7 +4,7 @@
 开机序列，演完再溶解进界面。
 
 > 这份是给使用者看的。想改代码的看 [README.md](README.md)，接手的 AI 看 [AGENTS.md](AGENTS.md)。
-> 两份文档都以英文为主（README 末尾另有一节中文），只有这份是中文。
+> README 默认中文，末尾有完整英文版；只有这份是纯中文。
 
 ---
 
@@ -344,7 +344,7 @@ src\client.js            设置卡片（改完要跑 build-client.mjs）
 lib\client.js            上面那个的构建产物（已提交，别手改）
 cordis.patch.yml         让 DSH 认识这个插件的补丁行
 MANUAL.md                这份使用手册
-README.md                英文说明（架构、构建、测试）
+README.md                项目说明（中文为主，末尾附英文版；架构、构建、测试）
 AGENTS.md                维护简令（给接手的 AI / 人看）
 INTERFACES.md            冻结的接口契约
 tools\install.ps1        安装

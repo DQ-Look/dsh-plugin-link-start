@@ -551,7 +551,8 @@ loudly rather than skip silently.
 
 ## 9. Docs and tooling (owned by `docs-dev`)
 
-`README.md` (English + 中文 section), `MANUAL.md` (user-facing, Chinese), `AGENTS.md`
+`README.md` (中文-first + full English section, a language switcher at the top of each),
+`MANUAL.md` (user-facing, Chinese), `AGENTS.md`
 (maintainer briefing), `tools/install.ps1`, `tools/uninstall.ps1`.
 
 Install does exactly two things and nothing else: a directory junction at

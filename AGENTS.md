@@ -256,8 +256,9 @@ counter exists for.
 
 ## House rules
 
-- Comments and docs are English; user-facing copy inside the plugin is Chinese.
-- `MANUAL.md` is Chinese and user-facing; `README.md` is English with a Chinese section;
+- Code comments are English; user-facing copy inside the plugin is Chinese.
+- `MANUAL.md` is Chinese and user-facing; `README.md` is **Chinese-first with a full English
+  section** (both self-contained, with a language switcher and anchor links at the top of each);
   this file is English.
 - Every tool under `tools/` is named in a root document.
 - Generated `.ps1` / `.bat` / `.cmd` are pure ASCII — content, not filename.
