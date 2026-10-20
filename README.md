@@ -76,6 +76,12 @@ powershell -ExecutionPolicy Bypass -File tools\uninstall.ps1
 目录联接用 `cmd /c rmdir` 删除，**绝不用** `Remove-Item -Recurse`——递归删除会顺着联接
 进去，把插件目录本身毁掉。任何不是 reparse point 的路径会直接拒绝，而不是删除。
 
+> **一个已声明的例外:如果原文件最后一行没有换行符。** 安装时新块必须从独立一行开始，
+> 所以脚本给它补了一个行尾符；磁盘上没有任何东西记录「原本缺这一个字节」，因此卸载后
+> 文件会以换行结尾。这是唯一无法还原的一个字节，脚本注释里明说了，而不是假装没发生。
+> YAML 和 git 都希望文件以换行结尾，所以这个方向的偏差是刻意的。若原文件本来就有换行
+> （正常情况下都有），往返是**严格逐字节相同**的。
+
 ---
 
 ## 使用
@@ -297,6 +303,14 @@ Reverses exactly the two changes, leaving `cordis.patch.yml` **byte-identical ex
 row it owns**. The link is removed with `cmd /c rmdir`, never `Remove-Item -Recurse` — a
 recursive delete follows a junction into the package directory and destroys it. Any path that
 is not a reparse point is refused rather than deleted.
+
+> **One declared exception: a source file whose last line has no terminating newline.** The
+> install has to start the appended block on a line of its own, so it adds that terminator, and
+> nothing on disk records that the file used to lack it — so after uninstall the file ends on a
+> newline. That is the one byte that cannot be restored, and the script says so in its comments
+> rather than papering over it. YAML and git both want a trailing newline, so the deviation is
+> deliberate. When the original does end with a newline (the normal case), the round trip is
+> **strictly byte-identical**.
 
 ## Using it
 

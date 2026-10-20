@@ -226,11 +226,20 @@ The per-suite table above and INTERFACES.md §8 agree; this section adds what th
 
 For the PowerShell pair, the proof that matters is a **sandboxed round trip**: copy a real
 `cordis.patch.yml` (ideally one carrying CJK) into a temp DSH home, run `install.ps1` then
-`uninstall.ps1` against it with `-DshHome`, and assert the file is **byte-identical** to the
-copy afterwards, that no BOM appeared, that the non-ASCII byte count is unchanged, and that a
-second `install.ps1` does not append a second row. Add a synthetic patch layer containing a
-`- id: link-start` row with a `config:` block and no `insert:` — that is the trap the insert-row
-counter exists for.
+`uninstall.ps1` against it with `-DshHome`, and assert the file is **byte-identical except for
+one declared exception** to the copy afterwards, that no BOM appeared, that the non-ASCII byte
+count is unchanged, and that a second `install.ps1` does not append a second row.
+
+The exception: if the original file's last line lacks a terminating newline, the install must
+start the appended block on its own line and therefore adds that terminator; nothing on disk
+records that the file originally lacked it. Uninstall therefore leaves the file ending in a
+newline — that one byte (the added `\n`) cannot be restored. The script documents this
+behaviour rather than papering over it. YAML and git both expect a trailing newline, so the
+deviation is deliberate. When the original ends with a newline (the normal case), the round
+trip is strictly byte-identical.
+
+Add a synthetic patch layer containing a `- id: link-start` row with a `config:` block and no
+`insert:` — that is the trap the insert-row counter exists for.
 
 ---
 
